@@ -3,8 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
 
-from dreamer.utils.utils import create_normal_dist, build_network, horizontal_forward
-
+try:
+    from dreamer.utils.utils import create_normal_dist, build_network, horizontal_forward
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import create_normal_dist, build_network, horizontal_forward
 
 class OneStepModel(nn.Module):
     def __init__(self, action_size, config):

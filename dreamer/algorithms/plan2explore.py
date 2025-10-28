@@ -2,17 +2,38 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from dreamer.algorithms.dreamer import Dreamer
-from dreamer.modules.actor import Actor
-from dreamer.modules.critic import Critic
-from dreamer.modules.one_step_model import OneStepModel
-from dreamer.utils.utils import (
-    compute_lambda_values,
-    create_normal_dist,
-    DynamicInfos,
-)
-from dreamer.utils.buffer import ReplayBuffer
+import sys
+from pathlib import Path
+#import p2e
+ROOT = Path(__file__).resolve().parents[5]  # ← a を含むディレクトリ
+print("ROOT:", ROOT)    
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
+try:
+    from dreamer.algorithms.dreamer import Dreamer
+    from dreamer.modules.actor import Actor
+    from dreamer.modules.critic import Critic
+    from dreamer.modules.one_step_model import OneStepModel
+    from dreamer.utils.utils import (
+        compute_lambda_values,
+        create_normal_dist,
+        DynamicInfos,
+    )
+    from dreamer.utils.buffer import ReplayBuffer
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.algorithms.dreamer import Dreamer
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.actor import Actor
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.critic import Critic
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.one_step_model import OneStepModel
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import (
+        compute_lambda_values,
+        create_normal_dist,
+        DynamicInfos,
+    )
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.buffer import ReplayBuffer
+    print("kita")
+    aa
 
 class Plan2Explore(Dreamer):
     def __init__(
@@ -54,13 +75,16 @@ class Plan2Explore(Dreamer):
         self.actor.intrinsic = False
 
     def train(self, env):
+        print(len(self.buffer))
         if len(self.buffer) < 1:
+            print("shutokusiteiruSS")
             self.environment_interaction(
                 self.intrinsic_actor, env, self.config.seed_episodes
             )
 
         for iteration in range(self.config.train_iterations):
             for collect_interval in range(self.config.collect_interval):
+                print()
                 data = self.buffer.sample(
                     self.config.batch_size, self.config.batch_length
                 )

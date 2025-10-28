@@ -1,10 +1,16 @@
 import torch
 import torch.nn as nn
 
-from dreamer.utils.utils import (
-    initialize_weights,
-    horizontal_forward,
-)
+try:
+    from dreamer.utils.utils import (
+        initialize_weights,
+        horizontal_forward,
+    )
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import (
+        initialize_weights,
+        horizontal_forward,
+    )
 
 
 class Encoder(nn.Module):

@@ -1,7 +1,10 @@
 import gym
 import dmc2gym
 
-from dreamer.envs.wrappers import *
+try:
+    from dreamer.envs.wrappers import *
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.envs.wrappers import *
 
 
 def make_dmc_env(

@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 from torch.distributions import TanhTransform
 
-from dreamer.utils.utils import create_normal_dist, build_network
-
+try:
+    from dreamer.utils.utils import create_normal_dist, build_network
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import create_normal_dist, build_network
 
 class Actor(nn.Module):
     def __init__(self, discrete_action_bool, action_size, config):

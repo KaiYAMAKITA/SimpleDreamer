@@ -26,7 +26,7 @@ parameters :
             activation : ELU
             num_layers : 4
     dreamer :
-        train_iterations : 4000
+        train_iterations : 100
         horizon_length : 15
         batch_size : 15
         batch_length : 50
@@ -51,7 +51,7 @@ parameters :
         stochastic_size : 30
         embedded_state_size : 1024
         buffer :
-            capacity : 5000000
+            capacity : 5000
         
         encoder : 
             depth : 32

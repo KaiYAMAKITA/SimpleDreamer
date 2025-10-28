@@ -1,5 +1,9 @@
-from dreamer.utils.utils import attrdict_monkeypatch_fix
-
+try:
+    from dreamer.utils.utils import attrdict_monkeypatch_fix
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import (
+        attrdict_monkeypatch_fix,
+    )
 attrdict_monkeypatch_fix()
 
 from attrdict import AttrDict
@@ -66,6 +70,11 @@ class ReplayBuffer(object):
         reward = torch.as_tensor(self.reward[sample_index], device=self.device)
         done = torch.as_tensor(self.done[sample_index], device=self.device)
 
+        print("observation", observation.shape)
+        print("action", action.shape)
+        print("reward", reward.shape)
+        print("next_observation", next_observation.shape)
+        print("done", done.shape)
         sample = AttrDict(
             {
                 "observation": observation,

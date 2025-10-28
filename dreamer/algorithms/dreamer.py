@@ -2,18 +2,33 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from dreamer.modules.model import RSSM, RewardModel, ContinueModel
-from dreamer.modules.encoder import Encoder
-from dreamer.modules.decoder import Decoder
-from dreamer.modules.actor import Actor
-from dreamer.modules.critic import Critic
+try:
+    from dreamer.modules.model import RSSM, RewardModel, ContinueModel
+    from dreamer.modules.encoder import Encoder
+    from dreamer.modules.decoder import Decoder
+    from dreamer.modules.actor import Actor
+    from dreamer.modules.critic import Critic
 
-from dreamer.utils.utils import (
-    compute_lambda_values,
-    create_normal_dist,
-    DynamicInfos,
-)
-from dreamer.utils.buffer import ReplayBuffer
+    from dreamer.utils.utils import (
+        compute_lambda_values,
+        create_normal_dist,
+        DynamicInfos,
+    )
+    from dreamer.utils.buffer import ReplayBuffer
+
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.model import RSSM, RewardModel, ContinueModel
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.encoder import Encoder
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.decoder import Decoder
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.actor import Actor
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.modules.critic import Critic
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import (
+        compute_lambda_values,
+        create_normal_dist,
+        DynamicInfos,
+    )
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.buffer import ReplayBuffer
+    
 
 
 class Dreamer:

@@ -1,11 +1,18 @@
 import torch.nn as nn
 
-from dreamer.utils.utils import (
-    initialize_weights,
-    horizontal_forward,
-    create_normal_dist,
-)
-
+try:
+    from dreamer.utils.utils import (
+        initialize_weights,
+        horizontal_forward,
+        create_normal_dist,
+    )
+except:
+    from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.utils import (
+        initialize_weights,
+        horizontal_forward,
+        create_normal_dist,
+    )
+    
 
 class Decoder(nn.Module):
     def __init__(self, observation_shape, config):
