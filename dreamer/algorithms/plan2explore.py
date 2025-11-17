@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from typing import Optional
+import os
 
 import sys
 from pathlib import Path
@@ -32,8 +34,6 @@ except:
         DynamicInfos,
     )
     from RoboManipBaselines.third_party.SimpleDreamer.dreamer.utils.buffer import ReplayBuffer
-    print("kita")
-    aa
 
 class Plan2Explore(Dreamer):
     def __init__(
@@ -44,12 +44,17 @@ class Plan2Explore(Dreamer):
         writer,
         device,
         config,
+        log_dir = None,
     ):
         super().__init__(
             observation_shape, discrete_action_bool, action_size, writer, device, config
         )
         self.config = self.config + config.parameters.plan2explore
-
+        self.log_dir = config.operation.log_dir
+        if log_dir is not None:
+            self.log_dir = log_dir
+        print(f"unyyyyyy {self.log_dir}")
+        
         self.intrinsic_actor = Actor(discrete_action_bool, action_size, config).to(
             self.device
         )
@@ -74,6 +79,22 @@ class Plan2Explore(Dreamer):
         self.intrinsic_actor.intrinsic = True
         self.actor.intrinsic = False
 
+    def continuous_euler(self, current_euler, previous_euler):
+        current_euler = np.array(current_euler)
+
+        for i in range(3):
+            # Correct for sign reversal
+            if current_euler[i] - previous_euler[i] > np.pi:
+                current_euler[i] -= 2 * np.pi
+            elif current_euler[i] - previous_euler[i] < -np.pi:
+                current_euler[i] += 2 * np.pi
+
+        # Invert negative value to positive value
+        if current_euler[0] < 0:
+            current_euler[0] += 2 * np.pi
+
+        return current_euler.tolist()
+
     def train(self, env):
         print(len(self.buffer))
         if len(self.buffer) < 1:
@@ -88,6 +109,7 @@ class Plan2Explore(Dreamer):
                 data = self.buffer.sample(
                     self.config.batch_size, self.config.batch_length
                 )
+                print(f"untiitt {data}")
                 posteriors, deterministics = self.dynamic_learning(data)
                 self.behavior_learning(
                     self.actor,
@@ -111,6 +133,8 @@ class Plan2Explore(Dreamer):
                 self.intrinsic_actor, env, self.config.num_interaction_episodes
             )
             self.evaluate(self.actor, env)
+
+            self.save(epoch=(iteration + 1))
 
     def evaluate(self, actor, env):
         self.environment_interaction(actor, env, self.config.num_evaluate, train=False)
@@ -374,3 +398,33 @@ class Plan2Explore(Dreamer):
             evaluate_score = score_lst.mean()
             print("evaluate score : ", evaluate_score)
             self.writer.add_scalar("test score", evaluate_score, self.num_total_episode)
+
+
+
+
+    def save(self, f: Optional[str] = None, epoch: int = 0) -> None:
+        state_dict = {
+            "epoch": epoch,
+            "encoder" : self.encoder.state_dict(),
+            "decoder" : self.decoder.state_dict(),
+            "rssm" : self.rssm.state_dict(),
+            "reward_predictor" : self.reward_predictor.state_dict(),
+            "actor" : self.actor.state_dict(),
+            "critic" : self.critic.state_dict(),
+            "intrinsic_actor" : self.intrinsic_actor.state_dict(),
+            "intrinsic_critic" : self.intrinsic_critic.state_dict(),
+            "one_step_models" : [m.state_dict() for m in self.one_step_models],
+        }
+        if self.config.use_continue_flag:
+            state_dict["continue_predictor"] = (
+                self.continue_predictor.state_dict()
+            )
+        filename = f or os.path.join(
+            self.log_dir, f"p2e.pth"
+        )
+        torch.save(state_dict, filename)
+        if epoch % 100 == 0 and f is None:
+            filename = os.path.join(self.log_dir, f"p2e_{epoch}.pth")
+            torch.save(state_dict, filename)
+        
+
