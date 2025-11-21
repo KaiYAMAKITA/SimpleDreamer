@@ -53,7 +53,7 @@ class Plan2Explore(Dreamer):
         self.log_dir = config.operation.log_dir
         if log_dir is not None:
             self.log_dir = log_dir
-        print(f"unyyyyyy {self.log_dir}")
+    
         
         self.intrinsic_actor = Actor(discrete_action_bool, action_size, config).to(
             self.device
@@ -96,20 +96,19 @@ class Plan2Explore(Dreamer):
         return current_euler.tolist()
 
     def train(self, env):
-        print(len(self.buffer))
+
         if len(self.buffer) < 1:
-            print("shutokusiteiruSS")
+
             self.environment_interaction(
                 self.intrinsic_actor, env, self.config.seed_episodes
             )
 
         for iteration in range(self.config.train_iterations):
             for collect_interval in range(self.config.collect_interval):
-                print()
                 data = self.buffer.sample(
                     self.config.batch_size, self.config.batch_length
                 )
-                print(f"untiitt {data}")
+                
                 posteriors, deterministics = self.dynamic_learning(data)
                 self.behavior_learning(
                     self.actor,
@@ -141,10 +140,12 @@ class Plan2Explore(Dreamer):
 
     def dynamic_learning(self, data):
         prior, deterministic = self.rssm.recurrent_model_input_init(len(data.action))
+        #print("data observation shape:", data.observation.shape)
 
         data.embedded_observation = self.encoder(data.observation)
 
         for t in range(1, self.config.batch_length):
+
             deterministic = self.rssm.recurrent_model(
                 prior, data.action[:, t - 1], deterministic
             )
@@ -173,6 +174,7 @@ class Plan2Explore(Dreamer):
         reconstructed_observation_dist = self.decoder(
             posterior_info.posteriors, posterior_info.deterministics
         )
+
         reconstruction_observation_loss = reconstructed_observation_dist.log_prob(
             data.observation[:, 1:]
         )
